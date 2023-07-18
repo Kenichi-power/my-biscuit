@@ -6,6 +6,8 @@ import CustomTextField from "../CustomTextField";
 import CustomDatePicker from "../CustomDatePicker";
 import { validationSchema } from "./schema";
 import { useNavigate } from "react-router-dom";
+import { doc, setDoc } from "firebase/firestore/lite";
+import { db } from "../../fb-config";
 
 interface CustomModalProps {
   modal: boolean;
@@ -20,13 +22,13 @@ const CustomModal = ({ modal, setModal }: CustomModalProps) => {
     middleName: "",
     phoneNumber: "",
     email: "",
-    acknowledge: false,
     cardId: "",
     date: null,
   };
 
   const style = {
     display: "flex",
+    alignItems: "center",
     position: "absolute" as "absolute",
     top: "50%",
     left: "50%",
@@ -42,10 +44,43 @@ const CustomModal = ({ modal, setModal }: CustomModalProps) => {
     flexDirection: "column",
   };
 
-  const onPress = (e: any) => {
+  const addPerson = async ({
+    firstName,
+    lastName,
+    middleName,
+    phoneNumber,
+    email,
+    cardId,
+    date,
+  }: {
+    firstName: string;
+    lastName: string;
+    middleName: string;
+    phoneNumber: string;
+    email: string;
+    cardId: string;
+    date: string;
+  }) => {
+    console.log("first", firstName);
+    const id = new Date().getTime().toString();
+
+    await setDoc(doc(db, "guests", id), {
+      id,
+      firstName,
+      lastName,
+      middleName,
+      phoneNumber,
+      email,
+      cardId,
+      date: date.toString(),
+    }).then(() => console.log("success"));
+  };
+
+  const onPress = async (e: any) => {
     // e.preventDefault();
     console.log("values sumbmit", e);
-    navigation("admin");
+    await addPerson(e);
+    // navigation("admin");
   };
 
   return (
@@ -62,7 +97,7 @@ const CustomModal = ({ modal, setModal }: CustomModalProps) => {
             className="relative"
             validationSchema={validationSchema}>
             {({ handleSubmit, errors }: any) => {
-              console.log("Errors", errors);
+              // console.log("Errors", errors);
               return (
                 <>
                   <CustomTextField
@@ -119,6 +154,19 @@ const CustomModal = ({ modal, setModal }: CustomModalProps) => {
               );
             }}
           </Formik>
+          {/* <h4>
+            Уважаемый покупатель, Мы рады, что вы являетесь держателем нашей
+            карты любимого покупателя. Хотелось бы сообщить вам, что карта
+            предназначена для использования только при покупках в нашем
+            заведении. Однако, стоит отметить, что данная карта не действует на
+            товары, которые уже имеют скидку. Мы предоставляем скидки на
+            определенные товары и акции, но в таких случаях карта не может быть
+            использована для дополнительного получения скидки. Мы ценим вашу
+            лояльность и благодарим за вашу поддержку. Если у вас возникли
+            какие-либо вопросы относительно использования карты или других
+            условий, пожалуйста, обратитесь к нашему персоналу, и мы с радостью
+            вам поможем.
+          </h4> */}
         </Box>
       </Modal>
     </LocalizationProvider>

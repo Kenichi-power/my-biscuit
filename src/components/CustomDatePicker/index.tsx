@@ -22,7 +22,13 @@ const CustomDatePicker = ({ ...props }: CustomDatePickerProps) => {
       label={props.label}
       slots={{
         textField: (textFieldProps) => {
-          return <TextField {...textFieldProps} error={props.error} />;
+          return (
+            <TextField
+              {...textFieldProps}
+              error={props.error}
+              style={{ width: "100%" }}
+            />
+          );
         },
       }}
     />

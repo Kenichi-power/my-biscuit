@@ -3,12 +3,12 @@ import { getFirestore } from "firebase/firestore/lite";
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyBQEiTNq3Y7cn56bqYgXHxU-V68lkLh5oc",
-  authDomain: "mybiscuit-e09b0.firebaseapp.com",
-  projectId: "mybiscuit-e09b0",
-  storageBucket: "mybiscuit-e09b0.appspot.com",
-  messagingSenderId: "569612192330",
-  appId: "1:569612192330:web:8718588503dc6c239174b3",
+  apiKey: "AIzaSyBApYsp_I6__VvsZwlDHQ56p_v6ZZUb0YM",
+  authDomain: "biscuit-6905d.firebaseapp.com",
+  projectId: "biscuit-6905d",
+  storageBucket: "biscuit-6905d.appspot.com",
+  messagingSenderId: "609108989888",
+  appId: "1:609108989888:web:6cd50fdb2d04133cb49a25",
 };
 
 // Initialize Firebase

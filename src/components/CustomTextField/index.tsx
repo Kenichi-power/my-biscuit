@@ -19,12 +19,13 @@ const CustomTextField = ({
       {({ field }: any) => {
         return (
           <TextField
+            style={{ width: "100%" }}
             {...field}
             id="outlined-basic"
             label={label}
             variant="outlined"
             type={type}
-            error={error}
+            error={!!error}
           />
         );
       }}
