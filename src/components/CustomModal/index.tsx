@@ -5,21 +5,23 @@ import { Formik } from "formik";
 import CustomTextField from "../CustomTextField";
 import CustomDatePicker from "../CustomDatePicker";
 import { validationSchema } from "./schema";
-import { useNavigate } from "react-router-dom";
+// import { useNavigate } from "react-router-dom";
 import { doc, setDoc } from "firebase/firestore/lite";
 import { db } from "../../fb-config";
+import { useState } from "react";
 
 interface CustomModalProps {
   modal: boolean;
   setModal: (e: boolean) => void;
 }
 const CustomModal = ({ modal, setModal }: CustomModalProps) => {
-  const navigation = useNavigate();
+  // const navigation = useNavigate();
+  const [policy, setPolicy] = useState(false);
 
   const initialValues = {
     firstName: "",
     lastName: "",
-    middleName: "",
+    fathersName: "",
     phoneNumber: "",
     email: "",
     cardId: "",
@@ -47,7 +49,7 @@ const CustomModal = ({ modal, setModal }: CustomModalProps) => {
   const addPerson = async ({
     firstName,
     lastName,
-    middleName,
+    fathersName,
     phoneNumber,
     email,
     cardId,
@@ -55,7 +57,7 @@ const CustomModal = ({ modal, setModal }: CustomModalProps) => {
   }: {
     firstName: string;
     lastName: string;
-    middleName: string;
+    fathersName: string;
     phoneNumber: string;
     email: string;
     cardId: string;
@@ -68,7 +70,7 @@ const CustomModal = ({ modal, setModal }: CustomModalProps) => {
       id,
       firstName,
       lastName,
-      middleName,
+      fathersName,
       phoneNumber,
       email,
       cardId,
@@ -91,82 +93,107 @@ const CustomModal = ({ modal, setModal }: CustomModalProps) => {
         aria-labelledby="modal-modal-title"
         aria-describedby="modal-modal-description">
         <Box sx={style}>
-          <Formik
-            initialValues={initialValues}
-            onSubmit={onPress}
-            className="relative"
-            validationSchema={validationSchema}>
-            {({ handleSubmit, errors }: any) => {
-              // console.log("Errors", errors);
-              return (
-                <>
-                  <CustomTextField
-                    label="Фамилия"
-                    name="lastName"
-                    error={errors.lastName}
-                  />
-                  <CustomTextField
-                    label="Имя"
-                    name="firstName"
-                    error={errors.firstName}
-                  />
-                  <CustomTextField
-                    label="Отчество"
-                    name="middleName"
-                    error={errors.middleName}
-                  />
-                  <CustomDatePicker
-                    label="День Рождение"
-                    name="date"
-                    error={errors.date}
-                  />
-                  <CustomTextField
-                    label="Номер телефона"
-                    name="phoneNumber"
-                    type="tel"
-                    error={errors.phoneNumber}
-                  />
-                  <CustomTextField
-                    label="Почта"
-                    name="email"
-                    error={errors.email}
-                  />
+          {!policy ? (
+            <Formik
+              initialValues={initialValues}
+              onSubmit={onPress}
+              className="relative"
+              validationSchema={validationSchema}>
+              {({ handleSubmit, errors }: any) => {
+                // console.log("Errors", errors);
+                return (
+                  <>
+                    <CustomTextField
+                      label="Фамилия"
+                      name="lastName"
+                      error={errors.lastName}
+                    />
+                    <CustomTextField
+                      label="Имя"
+                      name="firstName"
+                      error={errors.firstName}
+                    />
+                    <CustomTextField
+                      label="Отчество"
+                      name="fathersName"
+                      error={errors.fathersName}
+                    />
+                    <CustomDatePicker
+                      label="День Рождение"
+                      name="date"
+                      error={errors.date}
+                    />
+                    <CustomTextField
+                      label="Номер телефона"
+                      name="phoneNumber"
+                      type="tel"
+                      error={errors.phoneNumber}
+                    />
+                    <CustomTextField
+                      label="Почта"
+                      name="email"
+                      error={errors.email}
+                    />
 
-                  <CustomTextField
-                    label="Номер карты"
-                    name="cardId"
-                    error={errors.cardId}
-                  />
+                    <CustomTextField
+                      label="Номер карты"
+                      name="cardId"
+                      error={errors.cardId}
+                      type="tel"
+                    />
 
-                  <Button
-                    sx={{
-                      color: "white",
-                      borderRadius: 10,
-                      backgroundColor: "#838383",
-                      width: 300,
-                      height: 80,
-                      fontSize: 30,
-                    }}
-                    onClick={() => handleSubmit(onPress)}>
-                    Регистрация
-                  </Button>
-                </>
-              );
+                    <Button
+                      sx={{
+                        color: "white",
+                        borderRadius: 10,
+                        backgroundColor: "#838383",
+                        width: 300,
+                        height: 80,
+                        fontSize: 30,
+                        "&:active": {
+                          backgroundColor: "#ffc906e4",
+                        },
+                        "&:hover": {
+                          backgroundColor: "#ffc906e4",
+                        },
+                      }}
+                      onClick={() => handleSubmit(onPress)}>
+                      Регистрация
+                    </Button>
+                  </>
+                );
+              }}
+            </Formik>
+          ) : (
+            <h4>
+              Уважаемый покупатель,
+              <br />
+              <br />
+              <br />
+              Мы рады, что вы являетесь держателем нашей карты любимого
+              покупателя. Хотелось бы сообщить вам, что карта предназначена для
+              использования только при покупках в нашем заведении.
+              <br />
+              <br />
+              Однако, стоит отметить, что данная карта не действует на товары,
+              которые уже имеют скидку. Мы предоставляем скидки на определенные
+              товары и акции, но в таких случаях карта не может быть
+              использована для дополнительного получения скидки.
+              <br />
+              <br />
+              Мы ценим вашу лояльность и благодарим за вашу поддержку. Если у
+              вас возникли какие-либо вопросы относительно использования карты
+              или других условий, пожалуйста, обратитесь к нашему персоналу, и
+              мы с радостью вам поможем.
+            </h4>
+          )}
+          <Button
+            sx={{
+              color: "#838383",
             }}
-          </Formik>
-          {/* <h4>
-            Уважаемый покупатель, Мы рады, что вы являетесь держателем нашей
-            карты любимого покупателя. Хотелось бы сообщить вам, что карта
-            предназначена для использования только при покупках в нашем
-            заведении. Однако, стоит отметить, что данная карта не действует на
-            товары, которые уже имеют скидку. Мы предоставляем скидки на
-            определенные товары и акции, но в таких случаях карта не может быть
-            использована для дополнительного получения скидки. Мы ценим вашу
-            лояльность и благодарим за вашу поддержку. Если у вас возникли
-            какие-либо вопросы относительно использования карты или других
-            условий, пожалуйста, обратитесь к нашему персоналу, и мы с радостью
-            вам поможем.
-          </h4> */}
+            onClick={() => setPolicy(!policy)}>
+            {!policy ? "Правила пользования" : "Назад"}
+          </Button>
         </Box>
       </Modal>
     </LocalizationProvider>

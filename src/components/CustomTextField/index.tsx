@@ -5,7 +5,7 @@ interface CustomTextFieldProps {
   name: string;
   label: string;
   type?: string;
-  error?: any;
+  error?: boolean;
 }
 
 const CustomTextField = ({

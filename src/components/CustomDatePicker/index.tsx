@@ -6,7 +6,7 @@ interface CustomDatePickerProps {
   name: string;
   label: string;
   type?: string;
-  error?: any;
+  error?: boolean;
 }
 
 const CustomDatePicker = ({ ...props }: CustomDatePickerProps) => {

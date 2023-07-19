@@ -1,23 +1,26 @@
-import React from "react";
+import React, { useState } from "react";
 import { styled } from "styled-components";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { collection, deleteDoc, doc, getDocs } from "firebase/firestore/lite";
+import { useQuery } from "@tanstack/react-query";
+import { collection, getDocs } from "firebase/firestore/lite";
 import { db } from "../../fb-config";
-// import { exportToExcel } from "react-json-to-excel";
+import * as XLSX from "xlsx";
+import DownloadIcon from "@mui/icons-material/Download";
+import Person from "@mui/icons-material/Person";
+import Birth from "@mui/icons-material/Cake";
 
 import DataTable, {
   ExpanderComponentProps,
   TableColumn,
 } from "react-data-table-component";
 import { Button } from "@mui/material";
+import { useNavigate } from "react-router-dom";
 
 export const AdminWrapper = styled.div`
   display: flex;
-  border: 1px solid white;
   border-radius: 10px;
   background: #404042;
   flex-direction: column;
-  width: 100%;
+  width: 80%;
   height: 65vh;
 `;
 export const MainContainer = styled.div`
@@ -32,14 +35,15 @@ export const MainContainer = styled.div`
 type DataRow = {
   firstName: string;
   lastName: string;
-  middleName: string;
+  fathersName: string;
   phoneNumber: string;
   email: string;
   cardId: string;
   date: string;
 };
 const Admin = () => {
-  const client = useQueryClient();
+  const [guest, setGuest] = useState(false);
+  const navigation = useNavigate();
 
   const getData = async (state?: any) => {
     const guestsCol = collection(db, "guests");
@@ -47,41 +51,33 @@ const Admin = () => {
     const guestList: DataRow[] = guestsSnapshot.docs.map(
       (doc) => doc.data() as DataRow
     );
-    const today = new Date();
-    const todayFormatted = today.toISOString().slice(0, 10); // Форматируем в "гггг-мм-дд"
-
-    // Фильтруем массив объектов, оставляя только те, у которых сегодня день рождения
     const filteredArray = guestList.filter((obj) => {
-      // new Date(obj.date).toISOString().slice(0, 10) === todayFormatted}
       const day = new Date(obj.date).getDate();
       const month = new Date(obj.date).getMonth();
       const todayDay = new Date().getDate();
       const todayMonth = new Date().getMonth();
       return day === todayDay && month === todayMonth && obj;
     });
-    console.log("filteredArray", filteredArray);
+    console.log("state", state);
 
     return state ? filteredArray : guestList;
-    // return state === 'birthday' ? guestList.filter(person=>{
-    //   if(new Date(data.date))
-    // })
   };
-  const deletePerson = async (id: any) => {
-    await deleteDoc(doc(db, "guests", id));
-  };
-  const { data, isSuccess }: any = useQuery({
-    queryFn: () => getData(true),
+
+  const { data, isSuccess, refetch, isRefetching }: any = useQuery({
+    queryFn: () => getData(guest),
     queryKey: ["guests"],
     enabled: true,
-    refetchInterval: 3000,
+    refetchInterval: 1000,
   });
+  console.log("isRefetching", isRefetching);
+  const handleClick = () => [setGuest(!guest), refetch()];
+  const exportExcel = () => {
+    var wb = XLSX.utils.book_new(),
+      ws = XLSX.utils.json_to_sheet(data);
 
-  const { mutate: removePerson } = useMutation({
-    mutationFn: deletePerson,
-    onSuccess: () => {
-      client.invalidateQueries({ queryKey: ["guests"] });
-    },
-  });
+    XLSX.utils.book_append_sheet(wb, ws, `GuestList1`);
+    XLSX.writeFile(wb, `GuestList.xlsx`);
+  };
 
   const columns: TableColumn<DataRow>[] = [
     {
@@ -99,11 +95,11 @@ const Admin = () => {
   const ExpandedComponent: React.FC<ExpanderComponentProps<DataRow>> = ({
     data,
   }) => {
-    console.log("data", data);
     return (
       <div style={{ flexDirection: "column" }}>
         <p>Имя: {data.firstName}</p>
         <p>Фамилия: {data.lastName}</p>
+        {data.fathersName && <p>Отчество: {data.fathersName}</p>}
         <p>Номер телфона: {data.phoneNumber}</p>
         <p>Номер карты: {data.cardId}</p>
         <p>
@@ -126,10 +122,20 @@ const Admin = () => {
       },
     },
   };
+  const buttonStyle = {
+    color: "white",
+    backgroundColor: "#838383",
 
-  const subHeaderComponentMemo = React.useMemo(() => {
-    return <Button>Скачать</Button>;
-  }, []);
+    "&:active": {
+      backgroundColor: "#ffc906e4",
+      color: "black",
+    },
+    "&:hover": {
+      backgroundColor: "#ffc906e4",
+      color: "black",
+    },
+  };
+
   return (
     <MainContainer>
       <div style={{ position: "absolute", top: 100 }}>
@@ -138,13 +144,28 @@ const Admin = () => {
           height={"100%"}
           src={require("../../assets/photoeditorsdk-export.png")}
           alt=""
+          onClick={() => navigation("/")}
         />
       </div>
       <AdminWrapper>
+        <div
+          style={{
+            display: "flex",
+            backgroundColor: "white",
+            justifyContent: "space-between",
+            padding: 10,
+          }}>
+          <Button onClick={handleClick} sx={buttonStyle}>
+            {!guest ? <Person /> : <Birth />}
+          </Button>
+          <Button onClick={exportExcel} sx={buttonStyle}>
+            <DownloadIcon />
+          </Button>
+        </div>
         <DataTable
           fixedHeader
           columns={columns}
-          data={data || []}
+          data={data}
           expandableRows
           expandableRowsComponent={ExpandedComponent}
           expandOnRowClicked
@@ -152,8 +173,6 @@ const Admin = () => {
           pagination
           defaultSortFieldId={1}
           progressPending={!isSuccess}
-          subHeader
-          subHeaderComponent={subHeaderComponentMemo}
           customStyles={customStyles}
         />
       </AdminWrapper>
