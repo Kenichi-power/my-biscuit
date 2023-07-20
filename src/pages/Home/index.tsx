@@ -1,9 +1,9 @@
-import { Button } from "@mui/material";
+import { Box, Button, Modal } from "@mui/material";
 import { styled } from "styled-components";
 import { useState } from "react";
 // import { doc, setDoc } from "firebase/firestore/lite";
 // import { db } from "../../fb-config";
-import CustomModal from "../../components/CustomModal";
+import CustomModal, { style } from "../../components/CustomModal";
 
 export const Wrapper = styled.div`
   height: 100vh;
@@ -24,6 +24,7 @@ export const ButtonContainer = styled.div`
 
 const Home = () => {
   const [modal, setModal] = useState(false);
+  const [state, setState] = useState(false);
 
   return (
     <Wrapper>
@@ -63,11 +64,22 @@ const Home = () => {
             height: 100,
             fontSize: 30,
           }}
-          onClick={() => setModal(true)}>
+          onClick={() => setModal(true)}
+        >
           Получить карту
         </Button>
       </ButtonContainer>
-      <CustomModal modal={modal} setModal={setModal} />
+      <CustomModal modal={modal} setModal={setModal} setState={setState} />
+      <Modal
+        open={state}
+        onClose={() => setState(false)}
+        aria-labelledby="modal-modal-title"
+        aria-describedby="modal-modal-description"
+      >
+        <Box sx={[style, { width: "50%" }]}>
+          <h1>Успешно</h1>
+        </Box>
+      </Modal>
     </Wrapper>
   );
 };
