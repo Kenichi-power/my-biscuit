@@ -17,6 +17,7 @@ const CustomDatePicker = ({ ...props }: CustomDatePickerProps) => {
       {...field}
       {...props}
       onChange={(val) => {
+        console.log("val", val);
         setFieldValue(field.name, val);
       }}
       label={props.label}

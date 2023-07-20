@@ -58,18 +58,16 @@ const Admin = () => {
       const todayMonth = new Date().getMonth();
       return day === todayDay && month === todayMonth && obj;
     });
-    console.log("state", state);
 
     return state ? filteredArray : guestList;
   };
 
-  const { data, isSuccess, refetch, isRefetching }: any = useQuery({
+  const { data, isSuccess, refetch }: any = useQuery({
     queryFn: () => getData(guest),
     queryKey: ["guests"],
     enabled: true,
     refetchInterval: 1000,
   });
-  console.log("isRefetching", isRefetching);
   const handleClick = () => [setGuest(!guest), refetch()];
   const exportExcel = () => {
     var wb = XLSX.utils.book_new(),
@@ -104,7 +102,8 @@ const Admin = () => {
         <p>Номер карты: {data.cardId}</p>
         <p>
           Дата рождения: {new Date(data.date).getDate()}/
-          {new Date(data.date).getMonth()}/{new Date(data.date).getFullYear()}
+          {new Date(data.date).getMonth() + 1}/
+          {new Date(data.date).getFullYear()}
         </p>
       </div>
     );
@@ -154,7 +153,8 @@ const Admin = () => {
             backgroundColor: "white",
             justifyContent: "space-between",
             padding: 10,
-          }}>
+          }}
+        >
           <Button onClick={handleClick} sx={buttonStyle}>
             {!guest ? <Person /> : <Birth />}
           </Button>

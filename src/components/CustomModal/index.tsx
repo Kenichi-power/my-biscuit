@@ -9,6 +9,7 @@ import { doc, setDoc } from "firebase/firestore/lite";
 import { db } from "../../fb-config";
 import { useState } from "react";
 import Close from "@mui/icons-material/Close";
+import { LoadingButton } from "@mui/lab";
 
 interface CustomModalProps {
   modal: boolean;
@@ -35,7 +36,7 @@ export const style = {
 const CustomModal = ({ modal, setModal, setState }: CustomModalProps) => {
   // const navigation = useNavigate();
   const [policy, setPolicy] = useState(false);
-  // const [state, setState] = useState(true);
+  const [isSuccess, setIsSuccess] = useState(false);
 
   const initialValues = {
     firstName: "",
@@ -64,7 +65,6 @@ const CustomModal = ({ modal, setModal, setState }: CustomModalProps) => {
     cardId: string;
     date: string;
   }) => {
-    console.log("first", firstName);
     const id = new Date().getTime().toString();
 
     await setDoc(doc(db, "guests", id), {
@@ -75,18 +75,17 @@ const CustomModal = ({ modal, setModal, setState }: CustomModalProps) => {
       phoneNumber,
       email,
       cardId,
-      date: date.toString(),
+      date: new Date(date.toString()).toString(),
     }).then(() => {
       setModal(false);
       setState(true);
+      setIsSuccess(false);
     });
   };
 
   const onPress = async (e: any) => {
-    // e.preventDefault();
-    console.log("values sumbmit", e);
+    setIsSuccess(true);
     await addPerson(e);
-    // navigation("admin");
   };
 
   return (
@@ -130,7 +129,6 @@ const CustomModal = ({ modal, setModal, setState }: CustomModalProps) => {
             validationSchema={validationSchema}
           >
             {({ handleSubmit, errors }: any) => {
-              // console.log("Errors", errors);
               return (
                 <>
                   <CustomTextField
@@ -172,7 +170,9 @@ const CustomModal = ({ modal, setModal, setState }: CustomModalProps) => {
                     type="tel"
                   />
 
-                  <Button
+                  <LoadingButton
+                    loading={isSuccess}
+                    disabled={isSuccess}
                     sx={{
                       color: "white",
                       borderRadius: 10,
@@ -190,7 +190,7 @@ const CustomModal = ({ modal, setModal, setState }: CustomModalProps) => {
                     onClick={() => handleSubmit(onPress)}
                   >
                     Регистрация
-                  </Button>
+                  </LoadingButton>
                 </>
               );
             }}
